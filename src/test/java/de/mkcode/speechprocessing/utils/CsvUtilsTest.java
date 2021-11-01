@@ -126,6 +126,34 @@ public class CsvUtilsTest {
     }
 
     @Test
+    public void testReadCsvFromUrl_SkipMalformedRow() {
+        // get Logback Logger 
+        Logger fooLogger = (Logger) LoggerFactory.getLogger(CsvUtils.class);
+
+        // create and start a ListAppender
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+
+        // add the appender to the logger
+        fooLogger.addAppender(listAppender);
+
+        File file = new File("src/test/resources/test_statistics_withMalformedRow.csv");
+        List<StatisticsRow> rows = CsvUtils.readCsvFromUrl("file://" + file.getAbsolutePath());
+        
+        assertNotNull(rows);
+        assertEquals(1, rows.size());
+
+        assertEquals("Alexander Abel", rows.get(0).getSpeaker());
+        assertEquals("Education Policy", rows.get(0).getTopic());
+        assertEquals(LocalDate.of(2012, 10, 30), rows.get(0).getDate());
+        assertEquals(5310, rows.get(0).getWords());
+
+        List<ILoggingEvent> logsList = listAppender.list;
+        assertEquals("WARN", logsList.get(0).getLevel().levelStr);
+        assertEquals("CSV row {} malformed.", logsList.get(0).getMessage());
+    }
+
+    @Test
     public void testReadCsvFromUrl_Successful() {
         File file = new File("src/test/resources/test_statistics.csv");
         List<StatisticsRow> rows = CsvUtils.readCsvFromUrl("file://" + file.getAbsolutePath());

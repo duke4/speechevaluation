@@ -54,6 +54,8 @@ public class CsvUtils {
                     log.warn("Date could not be parsed. Row {} not added.", csvRecord);
                 } catch (NumberFormatException e2) {
                     log.warn("Words could not be parsed. Row {} not added.", csvRecord);
+                } catch (Exception e3) {
+                    log.warn("CSV row {} malformed.", csvRecord);
                 }
             }
         } catch (MalformedURLException e1) {
